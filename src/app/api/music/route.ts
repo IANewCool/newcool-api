@@ -1,59 +1,16 @@
 import { musicQuerySchema, validateBody } from '@/lib/validations';
 import { success, error, serverError } from '@/lib/api-response';
-
-// Mock music catalog - will connect to S3/database later
-const mockCatalog = [
-  {
-    id: '1',
-    title: 'Tablas del Reggaetón - Tabla del 2',
-    artist: 'NewCool Edu',
-    album: 'Matemáticas Bailables',
-    genre: 'reggaeton',
-    duration: 180,
-    url: 'https://newcool-streaming-platform-cdn.s3.us-east-2.amazonaws.com/music/tablas-2.mp3',
-  },
-  {
-    id: '2',
-    title: 'Elementos Trap - Hidrógeno',
-    artist: 'Ciencia Cool',
-    album: 'Tabla Periódica Vol. 1',
-    genre: 'trap',
-    duration: 210,
-    url: 'https://newcool-streaming-platform-cdn.s3.us-east-2.amazonaws.com/music/hidrogeno.mp3',
-  },
-  {
-    id: '3',
-    title: 'Cumbia de los Continentes',
-    artist: 'Geo Cool',
-    album: 'Geografía Musical',
-    genre: 'cumbia',
-    duration: 195,
-    url: 'https://newcool-streaming-platform-cdn.s3.us-east-2.amazonaws.com/music/continentes.mp3',
-  },
-  {
-    id: '4',
-    title: 'Rock de los Verbos',
-    artist: 'Lengua Viva',
-    album: 'Gramática Rock',
-    genre: 'rock',
-    duration: 240,
-    url: 'https://newcool-streaming-platform-cdn.s3.us-east-2.amazonaws.com/music/verbos.mp3',
-  },
-  {
-    id: '5',
-    title: 'Pop Histórico - 1810',
-    artist: 'Historia Pop',
-    album: 'Fechas que Importan',
-    genre: 'pop',
-    duration: 200,
-    url: 'https://newcool-streaming-platform-cdn.s3.us-east-2.amazonaws.com/music/1810.mp3',
-  },
-];
+import { tracks, albums, genres, getStats, searchMusic } from '@/lib/music-catalog';
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const params = Object.fromEntries(searchParams.entries());
+
+    // Stats endpoint
+    if (params.stats === 'true') {
+      return success(getStats());
+    }
 
     const validation = validateBody(musicQuerySchema, params);
     if (!validation.success) {
@@ -62,7 +19,7 @@ export async function GET(request: Request) {
 
     const { genre, artist, limit, offset } = validation.data;
 
-    let results = [...mockCatalog];
+    let results = [...tracks];
 
     // Filter by genre
     if (genre) {
@@ -82,7 +39,8 @@ export async function GET(request: Request) {
 
     return success({
       tracks: results,
-      genres: ['reggaeton', 'trap', 'cumbia', 'rock', 'pop'],
+      genres,
+      albums: albums.map(a => ({ id: a.id, title: a.title, artist: a.artist, coverUrl: a.coverUrl })),
     }, { total, limit, offset });
 
   } catch (err) {

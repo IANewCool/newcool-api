@@ -215,12 +215,148 @@ Get track details with lyrics.
 {
   "success": true,
   "data": {
-    "id": "1",
-    "title": "Tablas del Reggaetón - Tabla del 2",
+    "id": "t001",
+    "title": "Tabla del 2",
     "artist": "NewCool Edu",
-    "lyrics": "[Coro]\nDos por uno, dos...",
+    "album": "Tablas del Reggaetón",
+    "genre": "reggaeton",
+    "subject": "math",
+    "grade": "1-3",
     "duration": 180,
-    "url": "https://cdn.newcool.io/music/tablas-2.mp3"
+    "url": "https://cdn.newcool.io/music/tabla-2.mp3",
+    "coverUrl": "https://cdn.newcool.io/covers/tablas-reggaeton.jpg",
+    "plays": 45230,
+    "likes": 3200
+  }
+}
+```
+
+### POST /api/music/:id
+
+Increment play count for a track.
+
+**Request:**
+```json
+{
+  "action": "play"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": { "plays": 45231 }
+}
+```
+
+### GET /api/music?stats=true
+
+Get music catalog statistics.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "totalTracks": 25,
+    "totalAlbums": 6,
+    "totalPlaylists": 4,
+    "totalPlays": 623800,
+    "totalLikes": 48900,
+    "genres": ["reggaeton", "trap", "cumbia", "rock", "pop"],
+    "subjects": ["math", "chemistry", "geography", "spanish", "history", "english"]
+  }
+}
+```
+
+---
+
+## Albums
+
+### GET /api/music/albums
+
+List all albums.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "albums": [
+      {
+        "id": "a001",
+        "title": "Tablas del Reggaetón",
+        "artist": "NewCool Edu",
+        "genre": "reggaeton",
+        "subject": "math",
+        "coverUrl": "https://cdn.newcool.io/covers/tablas-reggaeton.jpg",
+        "trackCount": 9,
+        "releaseDate": "2025-06-01"
+      }
+    ]
+  },
+  "meta": { "total": 6 }
+}
+```
+
+### GET /api/music/albums/:id
+
+Get album details with tracks.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "a001",
+    "title": "Tablas del Reggaetón",
+    "artist": "NewCool Edu",
+    "tracks": [{ "id": "t001", "title": "Tabla del 2", ... }]
+  }
+}
+```
+
+---
+
+## Playlists
+
+### GET /api/music/playlists
+
+List public playlists.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "playlists": [
+      {
+        "id": "p001",
+        "name": "Top Educativo",
+        "description": "Las canciones más escuchadas",
+        "coverUrl": "https://cdn.newcool.io/playlists/top-educativo.jpg",
+        "trackCount": 5
+      }
+    ]
+  },
+  "meta": { "total": 4 }
+}
+```
+
+### GET /api/music/playlists/:id
+
+Get playlist details with tracks.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "p001",
+    "name": "Top Educativo",
+    "description": "Las canciones más escuchadas",
+    "tracks": [{ "id": "t001", "title": "Tabla del 2", ... }]
   }
 }
 ```

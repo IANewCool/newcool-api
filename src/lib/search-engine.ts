@@ -1,26 +1,48 @@
 /**
  * Search V3 Engine
  * Hybrid search with BM25 + semantic matching
+ * Integrated with Music Catalog
  */
 
-// Music Index
-export const musicIndex = [
-  { id: '1', title: 'Tablas del Reggaetón - Tabla del 2', artist: 'NewCool Edu', genre: 'reggaeton', subject: 'math', grade: '1-3', keywords: ['multiplicación', 'tablas', 'dos'] },
-  { id: '2', title: 'Tablas del Reggaetón - Tabla del 3', artist: 'NewCool Edu', genre: 'reggaeton', subject: 'math', grade: '1-3', keywords: ['multiplicación', 'tablas', 'tres'] },
-  { id: '3', title: 'Tablas del Reggaetón - Tabla del 4', artist: 'NewCool Edu', genre: 'reggaeton', subject: 'math', grade: '1-3', keywords: ['multiplicación', 'tablas', 'cuatro'] },
-  { id: '4', title: 'Tablas del Reggaetón - Tabla del 5', artist: 'NewCool Edu', genre: 'reggaeton', subject: 'math', grade: '1-3', keywords: ['multiplicación', 'tablas', 'cinco'] },
-  { id: '5', title: 'Elementos Trap - Hidrógeno', artist: 'Ciencia Cool', genre: 'trap', subject: 'chemistry', grade: '7-9', keywords: ['elementos', 'tabla periódica', 'hidrógeno', 'H'] },
-  { id: '6', title: 'Elementos Trap - Oxígeno', artist: 'Ciencia Cool', genre: 'trap', subject: 'chemistry', grade: '7-9', keywords: ['elementos', 'tabla periódica', 'oxígeno', 'O'] },
-  { id: '7', title: 'Elementos Trap - Carbono', artist: 'Ciencia Cool', genre: 'trap', subject: 'chemistry', grade: '7-9', keywords: ['elementos', 'tabla periódica', 'carbono', 'C'] },
-  { id: '8', title: 'Cumbia de los Continentes', artist: 'Geo Cool', genre: 'cumbia', subject: 'geography', grade: '4-6', keywords: ['continentes', 'geografía', 'mundo'] },
-  { id: '9', title: 'Cumbia de los Océanos', artist: 'Geo Cool', genre: 'cumbia', subject: 'geography', grade: '4-6', keywords: ['océanos', 'geografía', 'agua'] },
-  { id: '10', title: 'Rock de los Verbos', artist: 'Lengua Viva', genre: 'rock', subject: 'spanish', grade: '4-6', keywords: ['verbos', 'gramática', 'conjugación'] },
-  { id: '11', title: 'Rock de los Sustantivos', artist: 'Lengua Viva', genre: 'rock', subject: 'spanish', grade: '4-6', keywords: ['sustantivos', 'gramática', 'nombres'] },
-  { id: '12', title: 'Pop Histórico - 1810', artist: 'Historia Pop', genre: 'pop', subject: 'history', grade: '7-9', keywords: ['independencia', 'chile', '1810', 'patria'] },
-  { id: '13', title: 'Pop Histórico - 1879', artist: 'Historia Pop', genre: 'pop', subject: 'history', grade: '7-9', keywords: ['guerra del pacífico', 'chile', '1879'] },
-  { id: '14', title: 'English Pop - Colors', artist: 'English Cool', genre: 'pop', subject: 'english', grade: '1-3', keywords: ['colors', 'inglés', 'colores'] },
-  { id: '15', title: 'English Pop - Numbers', artist: 'English Cool', genre: 'pop', subject: 'english', grade: '1-3', keywords: ['numbers', 'inglés', 'números'] },
-];
+import { musicCatalog } from './music-catalog';
+
+// Generate music index from catalog with enhanced keywords
+export const musicIndex = musicCatalog.map(track => ({
+  id: track.id,
+  title: track.title,
+  artist: track.artist,
+  album: track.album,
+  genre: track.genre,
+  subject: track.subject,
+  grade: track.grade,
+  keywords: generateKeywords(track),
+  plays: track.plays,
+  likes: track.likes,
+}));
+
+// Generate keywords based on track metadata
+function generateKeywords(track: typeof musicCatalog[0]): string[] {
+  const keywords: string[] = [];
+
+  // Subject-based keywords
+  const subjectKeywords: Record<string, string[]> = {
+    math: ['multiplicación', 'tablas', 'matemáticas', 'números'],
+    chemistry: ['elementos', 'tabla periódica', 'química', 'ciencia'],
+    geography: ['continentes', 'océanos', 'geografía', 'mundo', 'capitales'],
+    spanish: ['gramática', 'lenguaje', 'español', 'verbos', 'sustantivos'],
+    history: ['historia', 'chile', 'fechas', 'independencia'],
+    english: ['inglés', 'english', 'colores', 'números'],
+  };
+
+  if (track.subject in subjectKeywords) {
+    keywords.push(...subjectKeywords[track.subject]);
+  }
+
+  // Add title words
+  keywords.push(...track.title.toLowerCase().split(/\s+/));
+
+  return [...new Set(keywords)];
+}
 
 // Courses Index
 export const coursesIndex = [
