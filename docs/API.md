@@ -363,6 +363,103 @@ Get playlist details with tracks.
 
 ---
 
+## Mind OS (Premium)
+
+### GET /api/mind-os
+
+Get Mind OS overview and available endpoints.
+
+### GET /api/mind-os/modes
+
+List cognitive modes.
+
+**Parameters:**
+| Param | Type | Description |
+|-------|------|-------------|
+| category | string | Filter: focus, creative, learning, wellness, productivity |
+| tier | string | Filter: free or premium |
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "modes": [
+      {
+        "id": "deep-focus",
+        "name": "Deep Focus",
+        "description": "Eliminate distractions and enter deep concentration",
+        "icon": "🎯",
+        "color": "#3b82f6",
+        "category": "focus",
+        "duration": 45,
+        "isPremium": false,
+        "techniques": ["Pomodoro intervals", "Ambient sounds"]
+      }
+    ],
+    "stats": { "total": 10, "free": 6, "premium": 4 }
+  }
+}
+```
+
+### GET /api/mind-os/modes/:id
+
+Get mode details with session guide.
+
+### GET /api/mind-os/profile
+
+Get user profile with stats and achievements.
+
+**Parameters:**
+| Param | Type | Description |
+|-------|------|-------------|
+| userId | string | User ID (defaults to demo-user) |
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "userId": "demo-user",
+    "level": 3,
+    "totalSessions": 25,
+    "totalMinutes": 180,
+    "focusScore": 75,
+    "creativityScore": 60,
+    "streak": 5,
+    "preferredModes": ["deep-focus", "rapid-learn"]
+  }
+}
+```
+
+### PATCH /api/mind-os/profile
+
+Update user preferences.
+
+### POST /api/mind-os/sessions
+
+Start or end a session.
+
+**Start Session:**
+```json
+{
+  "modeId": "deep-focus",
+  "userId": "user-123"
+}
+```
+
+**End Session:**
+```json
+{
+  "action": "end",
+  "sessionId": "sess_1234567890",
+  "rating": 5,
+  "notes": "Great session!"
+}
+```
+
+---
+
 ## Users
 
 ### GET /api/users
