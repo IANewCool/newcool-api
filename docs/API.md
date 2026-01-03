@@ -652,6 +652,215 @@ Get user queries.
 
 ---
 
+## Notifications
+
+### GET /api/notifications
+
+Get user notifications.
+
+**Parameters:**
+| Param | Type | Description |
+|-------|------|-------------|
+| userId | string | User ID |
+| unread | boolean | Only unread notifications |
+| type | string | Filter: course, cita, achievement, quiz, system, reminder |
+| limit | number | Results per page |
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "notifications": [
+      {
+        "id": "notif_123",
+        "type": "course",
+        "title": "Curso Completado",
+        "message": "Has completado Matemáticas Fundamentales",
+        "icon": "📚",
+        "read": false,
+        "createdAt": "2026-01-03T12:00:00Z"
+      }
+    ],
+    "unreadCount": 3
+  }
+}
+```
+
+### POST /api/notifications
+
+Create notification or mark all as read.
+
+**Mark All Read:**
+```json
+{ "action": "markAllRead", "userId": "user-123" }
+```
+
+### PATCH /api/notifications/:id
+
+Mark single notification as read.
+
+```json
+{ "action": "read" }
+```
+
+### DELETE /api/notifications/:id
+
+Delete a notification.
+
+---
+
+## Webhooks
+
+### GET /api/webhooks
+
+List user webhooks.
+
+**Parameters:**
+| Param | Type | Description |
+|-------|------|-------------|
+| userId | string | User ID |
+| events | boolean | List available events |
+
+### GET /api/webhooks?events=true
+
+List all available webhook events.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "events": [
+      { "event": "course.enrolled", "description": "Inscripción a curso" },
+      { "event": "course.completed", "description": "Curso completado" },
+      { "event": "cita.scheduled", "description": "Cita agendada" },
+      { "event": "quiz.submitted", "description": "Quiz enviado" }
+    ]
+  }
+}
+```
+
+### POST /api/webhooks
+
+Create a new webhook.
+
+**Request:**
+```json
+{
+  "url": "https://your-server.com/webhook",
+  "events": ["course.enrolled", "course.completed", "quiz.submitted"]
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "webhook": {
+      "id": "wh_123",
+      "url": "https://your-server.com/webhook",
+      "events": ["course.enrolled", "course.completed"],
+      "secret": "whsec_abc123...",
+      "active": true
+    }
+  }
+}
+```
+
+### PATCH /api/webhooks/:id
+
+Update webhook or regenerate secret.
+
+**Regenerate Secret:**
+```json
+{ "action": "regenerateSecret" }
+```
+
+### DELETE /api/webhooks/:id
+
+Delete a webhook.
+
+---
+
+## Analytics
+
+### GET /api/analytics?view=platform
+
+Get platform-wide statistics.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "type": "platform",
+    "stats": {
+      "users": { "total": 15420, "active": 8750, "newThisWeek": 342 },
+      "courses": { "total": 11, "enrollments": 28450, "completions": 12380 },
+      "music": { "totalTracks": 25, "totalPlays": 623800 },
+      "government": { "totalServices": 12, "citasScheduled": 4520 },
+      "mindOs": { "totalSessions": 45200, "totalMinutes": 892000 }
+    }
+  }
+}
+```
+
+### GET /api/analytics?view=dashboard
+
+Get admin dashboard data with charts and top content.
+
+### GET /api/analytics?view=user&userId=xxx
+
+Get user-specific analytics.
+
+### GET /api/analytics?view=metrics&metric=xxx&period=xxx
+
+Get time-series metrics.
+
+**Metrics:** users, enrollments, plays, sessions, citas
+**Periods:** day, week, month, year
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "metric": "enrollments",
+    "period": "week",
+    "current": 856,
+    "previous": 742,
+    "change": 15.4,
+    "data": [
+      { "date": "2026-01-01", "value": 120 },
+      { "date": "2026-01-02", "value": 135 }
+    ]
+  }
+}
+```
+
+### GET /api/analytics?view=funnel&funnel=xxx
+
+Get conversion funnel data.
+
+**Funnels:** onboarding, course, purchase
+
+### POST /api/analytics
+
+Track custom event.
+
+**Request:**
+```json
+{
+  "event": "button_click",
+  "properties": { "button": "enroll", "courseId": "math-101" },
+  "userId": "user-123"
+}
+```
+
+---
+
 ## Users
 
 ### GET /api/users
@@ -709,6 +918,10 @@ All errors follow this format:
 
 ### JavaScript/TypeScript
 
+```bash
+npm install @newcool/sdk
+```
+
 ```typescript
 import { NewCoolClient } from '@newcool/sdk';
 
@@ -718,12 +931,41 @@ const client = new NewCoolClient({
 });
 
 // Search
-const results = await client.search('tablas', { type: 'music' });
+const results = await client.search.search('tablas', { type: 'music' });
 
-// Get track
-const track = await client.music.getTrack('1');
+// Music
+const tracks = await client.music.getTracks({ genre: 'reggaeton' });
+await client.music.play('t001');
+
+// Education
+const courses = await client.education.getCourses({ subject: 'math' });
+await client.education.enroll('math-101');
+const result = await client.education.submitQuiz('quiz-1', { q1: 1, q2: 2 });
+
+// Government
+const services = await client.gov.getServices({ category: 'salud' });
+await client.gov.scheduleCita({
+  serviceId: 'registro-civil',
+  tramiteId: 'tr-cedula',
+  date: '2026-01-15',
+  time: '10:30',
+  location: 'Santiago Centro'
+});
+
+// Mind OS
+const modes = await client.mindOs.getModes({ tier: 'free' });
+const session = await client.mindOs.startSession('deep-focus');
+await client.mindOs.endSession(session.data.session.id, 5, 'Great!');
+
+// Notifications
+const notifs = await client.notifications.getAll({ unreadOnly: true });
+await client.notifications.markAsRead('notif_123');
+
+// Analytics
+const stats = await client.analytics.getPlatformStats();
+await client.analytics.trackEvent('page_view', { page: '/courses' });
 ```
 
 ---
 
-*NewCool API v1.0.0 - Enero 2026*
+*NewCool API v2.0.0 - Enero 2026*
