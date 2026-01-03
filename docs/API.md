@@ -460,6 +460,198 @@ Start or end a session.
 
 ---
 
+## Education
+
+### GET /api/courses
+
+List available courses.
+
+**Parameters:**
+| Param | Type | Description |
+|-------|------|-------------|
+| subject | string | Filter by subject (math, science, language, etc.) |
+| level | string | Filter by level (primaria, secundaria, preuniversitario) |
+| limit | number | Results per page |
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "courses": [
+      {
+        "id": "math-101",
+        "title": "Matemáticas Fundamentales",
+        "subject": "math",
+        "level": "primaria",
+        "description": "Operaciones básicas y resolución de problemas",
+        "lessonCount": 16
+      }
+    ]
+  },
+  "meta": { "total": 11 }
+}
+```
+
+### GET /api/courses/:id
+
+Get course details with lessons.
+
+### POST /api/quizzes/:quizId/submit
+
+Submit quiz answers.
+
+**Request:**
+```json
+{
+  "answers": { "q1": 2, "q2": 1 },
+  "userId": "user-123"
+}
+```
+
+---
+
+## Government Services (Portal Ciudadano)
+
+### GET /api/gov
+
+Get government portal overview.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "portal": "Portal Ciudadano NewCool",
+    "description": "Acceso unificado a servicios públicos de Chile",
+    "stats": {
+      "totalServices": 12,
+      "totalTramites": 15,
+      "onlineServices": 10
+    }
+  }
+}
+```
+
+### GET /api/gov/services
+
+List public services.
+
+**Parameters:**
+| Param | Type | Description |
+|-------|------|-------------|
+| category | string | Filter: salud, impuestos, identidad, trabajo, etc. |
+| online | boolean | Filter by online availability |
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "services": [
+      {
+        "id": "fonasa",
+        "name": "Fondo Nacional de Salud",
+        "shortName": "FONASA",
+        "category": "salud",
+        "icon": "🏥",
+        "isOnline": true,
+        "tramites": ["tr-fonasa-afiliacion", "tr-fonasa-bonos"]
+      }
+    ]
+  },
+  "meta": { "total": 12 }
+}
+```
+
+### GET /api/gov/services/:id
+
+Get service details with available procedures.
+
+### GET /api/gov/tramites
+
+List government procedures.
+
+**Parameters:**
+| Param | Type | Description |
+|-------|------|-------------|
+| serviceId | string | Filter by service |
+| online | boolean | Filter online-only |
+| free | boolean | Filter free procedures |
+
+### GET /api/gov/tramites/:id
+
+Get procedure details with requirements and steps.
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "id": "tr-registro-civil-cedula",
+    "name": "Obtener Cédula de Identidad",
+    "description": "Solicitud de cédula de identidad para chilenos",
+    "requirements": ["Certificado de nacimiento", "2 fotos carnet"],
+    "steps": ["Agendar cita", "Presentarse en oficina", "Pagar arancel"],
+    "duration": "10 días hábiles",
+    "cost": 5100,
+    "isOnline": false
+  }
+}
+```
+
+### POST /api/gov/citas
+
+Schedule or update appointment.
+
+**Schedule Request:**
+```json
+{
+  "serviceId": "registro-civil",
+  "tramiteId": "tr-registro-civil-cedula",
+  "date": "2026-01-15",
+  "time": "10:30",
+  "location": "Oficina Santiago Centro"
+}
+```
+
+**Update Request:**
+```json
+{
+  "citaId": "cita_123",
+  "action": "confirm"
+}
+```
+
+### GET /api/gov/citas
+
+Get user appointments.
+
+**Parameters:**
+| Param | Type | Description |
+|-------|------|-------------|
+| userId | string | User ID |
+| id | string | Get specific appointment |
+
+### POST /api/gov/consultas
+
+Create online query (certificates, status, debts).
+
+**Request:**
+```json
+{
+  "serviceId": "sii",
+  "type": "certificate",
+  "query": { "year": "2025", "docType": "renta" }
+}
+```
+
+### GET /api/gov/consultas
+
+Get user queries.
+
+---
+
 ## Users
 
 ### GET /api/users
