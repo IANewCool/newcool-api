@@ -1,60 +1,40 @@
-import { searchQuerySchema, validateBody } from '@/lib/validations';
+import { search, getStats, SearchOptions } from '@/lib/search-engine';
 import { success, error, serverError } from '@/lib/api-response';
+import { z } from 'zod';
 
-// Mock search results - will connect to Search V3 later
-const mockResults = {
-  music: [
-    { id: '1', title: 'Tablas del Reggaetón', artist: 'NewCool Edu', type: 'music' },
-    { id: '2', title: 'Elementos Trap', artist: 'Ciencia Cool', type: 'music' },
-  ],
-  courses: [
-    { id: '1', title: 'Matemáticas Básicas', modules: 12, type: 'course' },
-    { id: '2', title: 'Inglés para Principiantes', modules: 20, type: 'course' },
-  ],
-  modules: [
-    { id: 'math', name: 'newcool-math', category: 'education', type: 'module' },
-    { id: 'music', name: 'newcool-music', category: 'streaming', type: 'module' },
-  ],
-};
+const searchSchema = z.object({
+  q: z.string().min(1).max(200),
+  type: z.enum(['all', 'music', 'courses', 'modules']).default('all'),
+  subject: z.string().optional(),
+  grade: z.string().optional(),
+  genre: z.string().optional(),
+  limit: z.coerce.number().min(1).max(100).default(20),
+  offset: z.coerce.number().min(0).default(0),
+});
 
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
     const params = Object.fromEntries(searchParams.entries());
 
-    const validation = validateBody(searchQuerySchema, params);
+    // Special case: stats endpoint
+    if (params.stats === 'true') {
+      return success(getStats());
+    }
+
+    const validation = searchSchema.safeParse(params);
     if (!validation.success) {
-      return error(validation.error);
+      return error(validation.error.issues[0]?.message || 'Invalid query');
     }
 
-    const { q, type, limit, offset } = validation.data;
-    const query = q.toLowerCase();
+    const { q, type, subject, grade, genre, limit, offset } = validation.data;
 
-    let results: Array<{ id: string; title?: string; name?: string; type: string }> = [];
-
-    // Filter by type
-    if (type === 'all' || type === 'music') {
-      results = results.concat(
-        mockResults.music.filter(r => r.title.toLowerCase().includes(query))
-      );
-    }
-    if (type === 'all' || type === 'courses') {
-      results = results.concat(
-        mockResults.courses.filter(r => r.title.toLowerCase().includes(query))
-      );
-    }
-    if (type === 'all' || type === 'modules') {
-      results = results.concat(
-        mockResults.modules.filter(r => r.name.toLowerCase().includes(query))
-      );
-    }
-
-    // Paginate
-    const total = results.length;
-    results = results.slice(offset, offset + limit);
+    const options: SearchOptions = { type, subject, grade, genre, limit, offset };
+    const { results, total } = search(q, options);
 
     return success({
       query: q,
+      filters: { type, subject, grade, genre },
       results,
     }, { total, limit, offset });
 
