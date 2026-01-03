@@ -44,21 +44,22 @@ function generateKeywords(track: typeof musicCatalog[0]): string[] {
   return [...new Set(keywords)];
 }
 
-// Courses Index
-export const coursesIndex = [
-  { id: 'math-101', title: 'Matemáticas Básicas', subject: 'math', grade: '1-3', modules: 12, duration: '4 semanas', level: 'beginner' },
-  { id: 'math-201', title: 'Álgebra Introductoria', subject: 'math', grade: '7-9', modules: 15, duration: '6 semanas', level: 'intermediate' },
-  { id: 'math-301', title: 'Cálculo Diferencial', subject: 'math', grade: '10-12', modules: 20, duration: '8 semanas', level: 'advanced' },
-  { id: 'sci-101', title: 'Ciencias Naturales', subject: 'science', grade: '4-6', modules: 10, duration: '4 semanas', level: 'beginner' },
-  { id: 'sci-201', title: 'Química General', subject: 'chemistry', grade: '7-9', modules: 14, duration: '5 semanas', level: 'intermediate' },
-  { id: 'sci-301', title: 'Física Mecánica', subject: 'physics', grade: '10-12', modules: 18, duration: '7 semanas', level: 'advanced' },
-  { id: 'eng-101', title: 'Inglés para Principiantes', subject: 'english', grade: '1-3', modules: 20, duration: '8 semanas', level: 'beginner' },
-  { id: 'eng-201', title: 'Inglés Intermedio', subject: 'english', grade: '4-6', modules: 25, duration: '10 semanas', level: 'intermediate' },
-  { id: 'his-101', title: 'Historia de Chile', subject: 'history', grade: '7-9', modules: 12, duration: '5 semanas', level: 'intermediate' },
-  { id: 'geo-101', title: 'Geografía Mundial', subject: 'geography', grade: '4-6', modules: 10, duration: '4 semanas', level: 'beginner' },
-  { id: 'spa-101', title: 'Gramática Española', subject: 'spanish', grade: '4-6', modules: 15, duration: '6 semanas', level: 'intermediate' },
-  { id: 'code-101', title: 'Programación para Niños', subject: 'coding', grade: '4-6', modules: 12, duration: '6 semanas', level: 'beginner' },
-];
+// Courses Index - synced with education catalog
+import { courses as educationCourses } from './education';
+
+export const coursesIndex = educationCourses.map(course => ({
+  id: course.id,
+  title: course.title,
+  subject: course.subject,
+  grade: course.grade,
+  modules: course.modules,
+  duration: course.duration,
+  level: course.level,
+  instructor: course.instructor,
+  rating: course.rating,
+  enrollments: course.enrollments,
+  tags: course.tags,
+}));
 
 // Modules Index
 export const modulesIndex = [
